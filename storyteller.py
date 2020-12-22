@@ -110,7 +110,6 @@ class StoryTeller(QMainWindow):
         storyList.addItems(stories)
         storyList.setSelectionMode(QAbstractItemView.SingleSelection)
         storyList.itemClicked.connect(self._openFile)
-        storyList.show()
         
     @pyqtSlot(QListWidgetItem)
     def _openFile(self, item):
