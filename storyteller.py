@@ -14,7 +14,8 @@ from datetime import date
 from PyQt5.QtGui import QPalette, QFont, QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox, 
                              QApplication, QVBoxLayout, QWidget, QTextEdit,
-                             QSizePolicy, QLineEdit, QLabel, QComboBox)
+                             QSizePolicy, QLineEdit, QLabel, QComboBox,
+                             QListWidget, QListWidgetItem, QAbstractItemView)
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
 # TODO list
@@ -89,8 +90,9 @@ class StoryTeller(QMainWindow):
             font = widget.font()
             font.setPointSize(size)
             widget.setFont(font)
-        
-    def save(self):
+    
+    @pyqtSlot()
+    def saveStory(self):
         today = date.today().strftime("%Y-%m-%d")
         filename = f"{today} {self.title.text()}.html"
         path = os.path.join(self.savePath, filename)
@@ -99,13 +101,37 @@ class StoryTeller(QMainWindow):
         
         with open(path, 'w') as fileobj:
             fileobj.write(text)
+    
+    @pyqtSlot()
+    def openStory(self):
+        stories = os.listdir(self.savePath)
+        stories = [story for story in stories if os.path.splitext(story)[1]=='.html']
+        storyList = QListWidget()
+        storyList.addItems(stories)
+        storyList.setSelectionMode(QAbstractItemView.SingleSelection)
+        storyList.itemClicked.connect(self._openFile)
+        storyList.show()
+        
+    @pyqtSlot(QListWidgetItem)
+    def _openFile(self, item):
+        filename = item.text()
+        title, _ = os.path.splitext(filename)
+        path = os.path.join(self.savePath, filename)
+        with open(path) as fileobj:
+            text = fileobj.read()
+        self.textEdit.setHtml(text)
+        self.title.setText(title)
             
         
     def createActions(self):
         
         self.saveAct = QAction(QIcon.fromTheme('document-save'), "&Save", self,
                                shortcut=QKeySequence.Save,
-                               statusTip="Save the story", triggered=self.save)
+                               statusTip="Save the story", triggered=self.saveStory)
+        
+        self.openAct = QAction(QIcon.fromTheme('document-open'), "&Open", self,
+                               shortcut=QKeySequence.Open,
+                               statusTip="Open a story", triggered=self.openStory)
         
         self.exportAct = QAction(QIcon.fromTheme('text-x-generic'), "&Export", 
                                  self, statusTip="Export plain text")
@@ -153,6 +179,7 @@ class StoryTeller(QMainWindow):
         
         self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenu.addAction(self.saveAct)
+        self.fileMenu.addAction(self.openAct)
         self.fileMenu.addAction(self.exportAct)
         self.fileMenu.addSeparator();
         self.fileMenu.addAction(self.exitAct)
@@ -172,6 +199,7 @@ class StoryTeller(QMainWindow):
         
         self.fileToolBar = self.addToolBar("File")
         self.fileToolBar.addAction(self.saveAct)
+        self.fileToolBar.addAction(self.openAct)
         self.fileToolBar.addAction(self.setGoalAct)
         
         self.editToolBar = self.addToolBar("Edit")
