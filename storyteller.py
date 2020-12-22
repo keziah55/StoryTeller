@@ -16,6 +16,12 @@ from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox,
                              QSizePolicy, QLineEdit, QLabel)
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
+# TODO list
+# save/open files
+# make database of stories 
+## title, date created, date(s) modified, word count, goal
+# text formatting (bold, italic, font, size)
+## write to plain text; generally use the database to access
 
 class StoryTeller(QMainWindow):
     
