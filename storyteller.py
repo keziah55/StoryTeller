@@ -10,10 +10,10 @@ import sys
 import os
 import re
 
-from PyQt5.QtGui import QPalette, QFont, QIcon, QKeySequence
+from PyQt5.QtGui import QPalette, QFont, QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox, 
                              QApplication, QVBoxLayout, QWidget, QTextEdit,
-                             QSizePolicy, QLineEdit, QLabel)
+                             QSizePolicy, QLineEdit, QLabel, QComboBox)
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
 # TODO list
@@ -25,10 +25,12 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
 class StoryTeller(QMainWindow):
     
-    def __init__(self):
+    def __init__(self, savePath):
         super().__init__()
         
         self.goal = 100
+        
+        self.savePath = savePath
         
         self.textEdit = StoryEditor()
         self.title = QLineEdit()
@@ -48,7 +50,16 @@ class StoryTeller(QMainWindow):
         self.centralWidget = QWidget()
         self.centralWidget.setLayout(self.layout)
         self.setCentralWidget(self.centralWidget)
-        self.resize(500,600)
+        
+        self.fontDB = QFontDatabase()
+        
+        self.createActions()
+        self.createMenus()
+        self.createToolBars()
+        self.connectActions()
+        
+        self.setWindowTitle("Story Teller")
+        self.resize(700,600)
         self.centre()
         self.show()
         
@@ -59,11 +70,107 @@ class StoryTeller(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
         
-    def _makeMenus(self):
-        pass
+    @pyqtSlot(int)
+    def setFontFamily(self, idx):
+        family = self.fontFamilies[idx]
+        for widget in [self.title, self.textEdit]:
+            font = widget.font()
+            font.setFamily(family)
+            widget.setFont(font)
     
-    def _makeActions(self):
+    @pyqtSlot(int)
+    def setFontSize(self, idx):
+        size = self.sizes[idx]
+        for widget in [self.title, self.textEdit]:
+            font = widget.font()
+            font.setPointSize(size)
+            widget.setFont(font)
+        
+    def save(self):
+        # TODO 
         pass
+        
+    def createActions(self):
+        
+        self.saveAct = QAction(QIcon.fromTheme('document-save'), "&Save", self,
+                               shortcut=QKeySequence.Save,
+                               statusTip="Save the story", triggered=self.save)
+        
+        self.exportAct = QAction(QIcon.fromTheme('text-x-generic'), "&Export", 
+                                 self, statusTip="Export plain text")
+        
+        self.setGoalAct = QAction(QIcon.fromTheme('insert-text'),
+                                  "Set the word count goal", self)
+
+        self.exitAct = QAction("E&xit", self, shortcut="Ctrl+Q",
+                               statusTip="Exit the application", 
+                               triggered=self.close)
+        
+        self.boldAct = QAction(QIcon.fromTheme('format-text-bold'), "Bold", 
+                               self, shortcut="Ctrl+B")
+        
+        self.italicAct = QAction(QIcon.fromTheme('format-text-italic'), "Italic", 
+                                 self, shortcut="Ctrl+I")
+        
+        self.underlineAct = QAction(QIcon.fromTheme('format-text-underline'), 
+                                    "Underline", 
+                                    self, shortcut="Ctrl+U")
+        
+        self.strikeAct = QAction(QIcon.fromTheme('format-text-strikethrough'), 
+                                 "Strikethrough", 
+                                 self)#, shortcut="Ctrl+B")
+        
+        self.fontMenu = QComboBox()
+        self.fontFamilies = self.fontDB.families()
+        currentFont = self.textEdit.font().family()
+        self.fontMenu.addItems(self.fontFamilies)
+        idx = self.fontFamilies.index(currentFont)
+        self.fontMenu.setCurrentIndex(idx)
+        
+        self.sizeMenu = QComboBox()
+        self.sizes = [8, 9, 10, 11, 12, 14]
+        self.sizeMenu.addItems([f"{size}pt" for size in self.sizes])
+        self.defaultFontSize = 10 #self.textEdit.fontPointSize()
+        idx = self.sizes.index(self.defaultFontSize)
+        self.sizeMenu.setCurrentIndex(idx)
+        
+    def connectActions(self):
+        self.fontMenu.currentIndexChanged.connect(self.setFontFamily)
+        self.sizeMenu.currentIndexChanged.connect(self.setFontSize)
+        
+    def createMenus(self):
+        
+        self.fileMenu = self.menuBar().addMenu("&File")
+        self.fileMenu.addAction(self.saveAct)
+        self.fileMenu.addAction(self.exportAct)
+        self.fileMenu.addSeparator();
+        self.fileMenu.addAction(self.exitAct)
+        
+        # self.editMenu = self.menuBar().addMenu("&Edit")
+        # self.editMenu.addAction(self.addAct)
+        # self.editMenu.addAction(self.rmvAct)
+        # self.editMenu.addAction(self.editAct)
+
+        # self.menuBar().addSeparator()
+
+        # self.helpMenu = self.menuBar().addMenu("&Help")
+        # self.helpMenu.addAction(self.abtAct)
+
+
+    def createToolBars(self):
+        
+        self.fileToolBar = self.addToolBar("File")
+        self.fileToolBar.addAction(self.saveAct)
+        self.fileToolBar.addAction(self.setGoalAct)
+        
+        self.editToolBar = self.addToolBar("Edit")
+        self.editToolBar.addAction(self.boldAct)
+        self.editToolBar.addAction(self.italicAct)
+        self.editToolBar.addAction(self.underlineAct)
+        self.editToolBar.addAction(self.strikeAct)
+        
+        self.editToolBar.addWidget(self.fontMenu)
+        self.editToolBar.addWidget(self.sizeMenu)
         
     
 class StoryEditor(QTextEdit):
@@ -125,5 +232,5 @@ class WordCountLabel(QLabel):
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = StoryTeller()
+    window = StoryTeller('.')
     sys.exit(app.exec_())
