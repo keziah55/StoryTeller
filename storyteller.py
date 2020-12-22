@@ -10,7 +10,7 @@ import sys
 import os
 import re
 
-from PyQt5.QtGui import QPalette, QIcon, QKeySequence
+from PyQt5.QtGui import QPalette, QFont, QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox, 
                              QApplication, QVBoxLayout, QWidget, QTextEdit,
                              QSizePolicy, QLineEdit, QLabel)
@@ -26,6 +26,10 @@ class StoryTeller(QMainWindow):
         
         self.textEdit = StoryEditor()
         self.title = QLineEdit()
+        font = self.title.font()
+        font.setBold(True)
+        self.title.setFont(font)
+        self.title.setAlignment(Qt.AlignHCenter)
         self.wordCount = WordCountLabel(self.goal)
         
         self.textEdit.wordCount.connect(self.wordCount.setCountLabel)
@@ -38,7 +42,22 @@ class StoryTeller(QMainWindow):
         self.centralWidget = QWidget()
         self.centralWidget.setLayout(self.layout)
         self.setCentralWidget(self.centralWidget)
+        self.resize(500,600)
+        self.centre()
         self.show()
+        
+    def centre(self):
+        """ Centre window on screen. """
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+        
+    def _makeMenus(self):
+        pass
+    
+    def _makeActions(self):
+        pass
         
     
 class StoryEditor(QTextEdit):
