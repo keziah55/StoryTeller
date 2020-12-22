@@ -9,6 +9,7 @@ Created on Tue Dec 22 16:45:48 2020
 import sys
 import os
 import re
+from datetime import date
 
 from PyQt5.QtGui import QPalette, QFont, QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox, 
@@ -25,12 +26,13 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
 class StoryTeller(QMainWindow):
     
-    def __init__(self, savePath):
+    def __init__(self):
         super().__init__()
         
         self.goal = 100
         
-        self.savePath = savePath
+        user = os.path.expanduser('~')
+        self.savePath = os.path.join(user, 'Documents', 'stories')
         
         self.textEdit = StoryEditor()
         self.title = QLineEdit()
@@ -72,6 +74,7 @@ class StoryTeller(QMainWindow):
         
     @pyqtSlot(int)
     def setFontFamily(self, idx):
+        # TODO set on highlighted text
         family = self.fontFamilies[idx]
         for widget in [self.title, self.textEdit]:
             font = widget.font()
@@ -80,6 +83,7 @@ class StoryTeller(QMainWindow):
     
     @pyqtSlot(int)
     def setFontSize(self, idx):
+        # TODO set on highlighted text
         size = self.sizes[idx]
         for widget in [self.title, self.textEdit]:
             font = widget.font()
@@ -87,8 +91,15 @@ class StoryTeller(QMainWindow):
             widget.setFont(font)
         
     def save(self):
-        # TODO 
-        pass
+        today = date.today().strftime("%Y-%m-%d")
+        filename = f"{today} {self.title.text()}.html"
+        path = os.path.join(self.savePath, filename)
+        
+        text = f"<h1>{self.title.text()}</h1>" + self.textEdit.toHtml()
+        
+        with open(path, 'w') as fileobj:
+            fileobj.write(text)
+            
         
     def createActions(self):
         
@@ -130,7 +141,7 @@ class StoryTeller(QMainWindow):
         self.sizeMenu = QComboBox()
         self.sizes = [8, 9, 10, 11, 12, 14]
         self.sizeMenu.addItems([f"{size}pt" for size in self.sizes])
-        self.defaultFontSize = 10 #self.textEdit.fontPointSize()
+        self.defaultFontSize = 11 #self.textEdit.fontPointSize()
         idx = self.sizes.index(self.defaultFontSize)
         self.sizeMenu.setCurrentIndex(idx)
         
@@ -232,5 +243,5 @@ class WordCountLabel(QLabel):
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = StoryTeller('.')
+    window = StoryTeller()
     sys.exit(app.exec_())
