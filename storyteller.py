@@ -18,8 +18,11 @@ from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox,
                              QListWidget, QListWidgetItem, QAbstractItemView)
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
 
+from dialogs import OpenStoryDialog
+
 # TODO list
-# save/open files
+# list of titles
+# new story
 # make database of stories 
 ## title, date created, date(s) modified, word count, goal
 # text formatting (bold, italic, font, size)
@@ -104,24 +107,25 @@ class StoryTeller(QMainWindow):
     
     @pyqtSlot()
     def openStory(self):
-        stories = os.listdir(self.savePath)
-        stories = [story for story in stories if os.path.splitext(story)[1]=='.html']
-        storyList = QListWidget()
-        storyList.addItems(stories)
-        storyList.setSelectionMode(QAbstractItemView.SingleSelection)
-        storyList.itemClicked.connect(self._openFile)
+        diag = OpenStoryDialog(self.savePath)
+        result = diag.execDialog()
+        if result:
+            self._openFile(diag.story)
         
-    @pyqtSlot(QListWidgetItem)
-    def _openFile(self, item):
-        filename = item.text()
+    @pyqtSlot(str)
+    def _openFile(self, filename):
+        # strip extension and date from title
         title, _ = os.path.splitext(filename)
+        title = re.sub(r"\d{4}-\d{2}-\d{2} ", "", title)
+        self.title.setText(title)
+        
+        # set text
         path = os.path.join(self.savePath, filename)
         with open(path) as fileobj:
             text = fileobj.read()
         self.textEdit.setHtml(text)
-        self.title.setText(title)
-            
         
+            
     def createActions(self):
         
         self.saveAct = QAction(QIcon.fromTheme('document-save'), "&Save", self,
