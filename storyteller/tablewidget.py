@@ -13,44 +13,44 @@ class TableWidget(QTableWidget):
     
         Parameters
         ----------
-        header : list 
-            List of column headers. (Can provide `column` instead.)
+        headerLabels : list 
+            List of column headerLabelss. (Can provide `column` instead.)
         columns : int
-            Number of columns. (Only required if `header` is not provided.)
+            Number of columns. (Only required if `headerLabels` is not provided.)
         showRowNumbers : bool
             If True (default behaviour), row numbers will be shown.
-        clickHeaderToSort : True
-            Sort table when header clicked.
+        clickHeaderLabelsToSort : True
+            Sort table when headerLabels clicked.
         parent : QObject, optional
             Parent object
     """
     
-    def __init__(self, header=None, columns=None, showRowNumbers=True, 
-                 clickHeaderToSort=True, parent=None):
-        if header is None and columns is None:
-            msg = "TableWidget needs either `header` or `columns` arg."
+    def __init__(self, headerLabels=None, columns=None, showRowNumbers=True, 
+                 clickHeaderLabelsToSort=True, parent=None):
+        if headerLabels is None and columns is None:
+            msg = "TableWidget needs either `headerLabels` or `columns` arg."
             raise ValueError(msg)
         
-        if header is not None and columns is not None:
-            msg = "TableWidget needs either `header` or `columns` arg, not both."
+        if headerLabels is not None and columns is not None:
+            msg = "TableWidget needs either `headerLabels` or `columns` arg, not both."
             raise ValueError(msg)
             
         if columns is None:
-            columns = len(header)
+            columns = len(headerLabels)
         rows = 0
         
         super().__init__(rows, columns, parent)
         
-        if header is not None:
-            self.setHorizontalHeaderLabels(header)
+        if headerLabels is not None:
+            self.setHorizontalHeaderLabels(headerLabels)
         else:
-            header = list(range(columns))
-        self.header = header
+            headerLabels = list(range(columns))
+        self.headerLabels = headerLabels
         
         self.verticalHeader().setVisible(showRowNumbers)
         
-        self.columnSort = dict(zip(self.header, [None]*len(self.header)))
-        self.setClickHeaderToSort(clickHeaderToSort)
+        self.columnSort = dict(zip(self.headerLabels, [None]*len(self.headerLabels)))
+        self.setClickHeaderLabelsToSort(clickHeaderLabelsToSort)
 
         
     @property
@@ -61,6 +61,10 @@ class TableWidget(QTableWidget):
     def columnCount(self):
         return super().columnCount()
     
+    @property
+    def header(self):
+        return super().horizontalHeader()
+    
     def addRow(self, *args):
         """ Add row to the table.
         
@@ -68,7 +72,7 @@ class TableWidget(QTableWidget):
             the keys correspond to header strings.
         """
         if isinstance(args, (tuple, list)):
-            args = dict(zip(self.header, args))
+            args = dict(zip(self.headerLabels, args))
         elif isinstance(args[0], dict):
             args = args[0]
         else:
@@ -78,37 +82,37 @@ class TableWidget(QTableWidget):
         row = self.rowCount
         self.insertRow(row)
         
-        for n, key in enumerate(self.header):
+        for n, key in enumerate(self.headerLabels):
             item = QTableWidgetItem(str(args[key]))
             self.setItem(row, n, item)
             
     def currentValue(self, column):
         """ Return the value of the given column in the currently selected row. """
         row = self.currentRow()
-        col = self.header.index(column)
+        col = self.headerLabels.index(column)
         item = self.item(row, col)
         return item.text()
         
     def sort(self, column, order=None):
         if isinstance(column, int):
-            column = self.header[column]
+            column = self.headerLabels[column]
         if order is None:
             if self.columnSort[column] is None or self.columnSort[column]==Qt.DescendingOrder:
                 order = Qt.AscendingOrder
             else:
                 order = Qt.DescendingOrder
-        idx = self.header.index(column)
+        idx = self.headerLabels.index(column)
         self.sortItems(idx, order)
         self.columnSort[column] = order
         
-    def setClickHeaderToSort(self, value):
+    def setClickHeaderLabelsToSort(self, value):
         # don't want multiple connections, so always disconnect and only 
         # reconnect if required
         try:
-            self.horizontalHeader().sectionClicked.disconnect(self.sort)
+            self.header.sectionClicked.disconnect(self.sort)
         except TypeError:
             pass
         if value:
-            self.horizontalHeader().setSectionsClickable(True)
-            self.horizontalHeader().setSortIndicatorShown(True)
-            self.horizontalHeader().sectionClicked.connect(self.sort)
+            self.header.setSectionsClickable(True)
+            self.header.setSortIndicatorShown(True)
+            self.header.sectionClicked.connect(self.sort)
