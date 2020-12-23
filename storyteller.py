@@ -11,14 +11,14 @@ import os
 import re
 from datetime import date
 
-from PyQt5.QtGui import QPalette, QFont, QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import (QAction, QDesktopWidget, QMainWindow, QMessageBox, 
-                             QApplication, QVBoxLayout, QWidget, QTextEdit,
-                             QSizePolicy, QLineEdit, QLabel, QComboBox,
-                             QListWidget, QListWidgetItem, QAbstractItemView)
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QTimer, Qt
+from PyQt5.QtGui import QFontDatabase, QIcon, QKeySequence
+from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QDesktopWidget, 
+                             QLineEdit, QMainWindow, QWidget, QVBoxLayout) 
+from PyQt5.QtCore import pyqtSlot, Qt
 
 from dialogs import OpenStoryDialog
+from editor import StoryEditor
+from countlabel import WordCountLabel
 
 # TODO list
 # list of titles
@@ -27,6 +27,8 @@ from dialogs import OpenStoryDialog
 ## title, date created, date(s) modified, word count, goal
 # text formatting (bold, italic, font, size)
 ## write to plain text; generally use the database to access
+
+
 
 class StoryTeller(QMainWindow):
     
@@ -214,62 +216,6 @@ class StoryTeller(QMainWindow):
         self.editToolBar.addWidget(self.fontMenu)
         self.editToolBar.addWidget(self.sizeMenu)
         
-    
-class StoryEditor(QTextEdit):
-    
-    wordCount = pyqtSignal(int)
-    """ **signal** wordCount 
-    
-        Emitted when the word count changes.
-    """
-    
-    def __init__(self):
-        super().__init__()
-        
-        self.count = 0
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(100)
-        self.timer.timeout.connect(self.countWords)
-        self.textChanged.connect(self.timer.start)
-        
-       
-    @pyqtSlot()
-    def countWords(self):
-        text = self.toPlainText()
-        words = re.split(r"\s+", text.strip())
-        words = [word for word in words if word]
-        if len(words) != self.count:
-            self.count = len(words)
-            self.wordCount.emit(self.count)
-            
-            
-class WordCountLabel(QLabel):
-    
-    def __init__(self, goal):
-        super().__init__()
-        self.goal = goal
-        
-        self.lessPalette = QPalette()
-        self.equalPalette = QPalette()
-        self.morePalette = QPalette()
-        
-        self.lessPalette.setColor(QPalette.WindowText, Qt.red)
-        self.equalPalette.setColor(QPalette.WindowText, Qt.green)
-        self.morePalette.setColor(QPalette.WindowText, Qt.yellow)
-        self.setAutoFillBackground(True)
-        
-        self.setCountLabel(0)
-        
-    @pyqtSlot(int)
-    def setCountLabel(self, count):
-        if count < self.goal:
-            self.setPalette(self.lessPalette)
-        elif count == self.goal:
-            self.setPalette(self.equalPalette)
-        else:
-            self.setPalette(self.morePalette)
-        self.setText(f"Word count: {count}, Goal: {self.goal}")
         
         
 if __name__ == '__main__':
