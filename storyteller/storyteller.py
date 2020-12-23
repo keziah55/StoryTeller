@@ -6,19 +6,18 @@ Created on Tue Dec 22 16:45:48 2020
 @author: keziah
 """
 
-import sys
 import os
 import re
 from datetime import date
 
 from PyQt5.QtGui import QFontDatabase, QIcon, QKeySequence
-from PyQt5.QtWidgets import (QAction, QApplication, QComboBox, QDesktopWidget, 
+from PyQt5.QtWidgets import (QAction, QComboBox, QDesktopWidget, 
                              QLineEdit, QMainWindow, QWidget, QVBoxLayout) 
 from PyQt5.QtCore import pyqtSlot, Qt
 
-from dialogs import OpenStoryDialog
-from editor import StoryEditor
-from countlabel import WordCountLabel
+from .dialogs import OpenStoryDialog
+from .editor import StoryEditor
+from .countlabel import WordCountLabel
 
 # TODO list
 # list of titles
@@ -216,9 +215,3 @@ class StoryTeller(QMainWindow):
         self.editToolBar.addWidget(self.fontMenu)
         self.editToolBar.addWidget(self.sizeMenu)
         
-        
-        
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = StoryTeller()
-    sys.exit(app.exec_())
