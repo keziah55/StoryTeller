@@ -22,7 +22,8 @@ class TableWidget(QTableWidget):
             Parent object
     """
     
-    def __init__(self, header=None, columns=None, showRowNumbers=True, parent=None):
+    def __init__(self, header=None, columns=None, showRowNumbers=True, 
+                 parent=None):
         if header is None and columns is None:
             msg = "TableWidget needs either `header` or `columns` arg."
             raise ValueError(msg)
@@ -44,7 +45,7 @@ class TableWidget(QTableWidget):
         self.header = header
         
         self.verticalHeader().setVisible(showRowNumbers)
-        
+
         
     @property
     def rowCount(self):

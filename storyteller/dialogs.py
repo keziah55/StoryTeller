@@ -8,8 +8,8 @@ Created on Wed Dec 23 16:32:35 2020
 
 import os
 import re
-from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QListWidget,
-                             QVBoxLayout, QAbstractItemView)
+from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout, 
+                             QAbstractItemView, QSizePolicy)
 from PyQt5.QtCore import pyqtSlot
 from .tablewidget import TableWidget
 from .editor import StoryEditor
@@ -27,13 +27,10 @@ class OpenStoryDialog(QDialog):
         stories = [story for story in stories if os.path.splitext(story)[1]=='.html']
         
         header = ['Title', 'Date', 'Wordcount']
-        self.storyTable = TableWidget(header)#=header, parent=self)
+        self.storyTable = TableWidget(header, showRowNumbers=False)
         self.storyTable.setSelectionMode(QAbstractItemView.SingleSelection)
         self.populateTable(stories)
-        
-        # self.storyList = QListWidget()
-        # self.storyList.addItems(stories)
-        # self.storyList.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.storyTable.resizeColumnsToContents()
         
         self.buttons = QDialogButtonBox(QDialogButtonBox.Open|QDialogButtonBox.Cancel)
         self.buttons.accepted.connect(self.accept)
@@ -42,6 +39,8 @@ class OpenStoryDialog(QDialog):
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.storyTable)
         self.layout.addWidget(self.buttons)
+        
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
         self.setLayout(self.layout)
         
