@@ -40,9 +40,14 @@ class OpenStoryDialog(QDialog):
         self.layout.addWidget(self.storyTable)
         self.layout.addWidget(self.buttons)
         
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
-        
         self.setLayout(self.layout)
+        
+        # self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
+        # height = self.storyTable.size().height()
+        # width = sum([self.storyTable.columnWidth(i) for i in range(self.storyTable.columnCount)])
+        self.resize(self.storyTable.size())
+        
         
     @property
     def story(self):

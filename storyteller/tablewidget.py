@@ -6,6 +6,7 @@ Created on Wed Dec 23 18:00:04 2020
 @author: keziah
 """
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt5.QtCore import Qt
 
 class TableWidget(QTableWidget):
     """ More Pythonic version of QTableWidget.
@@ -18,12 +19,14 @@ class TableWidget(QTableWidget):
             Number of columns. (Only required if `header` is not provided.)
         showRowNumbers : bool
             If True (default behaviour), row numbers will be shown.
+        clickHeaderToSort : True
+            Sort table when header clicked.
         parent : QObject, optional
             Parent object
     """
     
     def __init__(self, header=None, columns=None, showRowNumbers=True, 
-                 parent=None):
+                 clickHeaderToSort=True, parent=None):
         if header is None and columns is None:
             msg = "TableWidget needs either `header` or `columns` arg."
             raise ValueError(msg)
@@ -45,6 +48,9 @@ class TableWidget(QTableWidget):
         self.header = header
         
         self.verticalHeader().setVisible(showRowNumbers)
+        
+        self.columnSort = dict(zip(self.header, [None]*len(self.header)))
+        self.setClickHeaderToSort(clickHeaderToSort)
 
         
     @property
@@ -54,7 +60,7 @@ class TableWidget(QTableWidget):
     @property
     def columnCount(self):
         return super().columnCount()
-        
+    
     def addRow(self, *args):
         """ Add row to the table.
         
@@ -83,3 +89,26 @@ class TableWidget(QTableWidget):
         item = self.item(row, col)
         return item.text()
         
+    def sort(self, column, order=None):
+        if isinstance(column, int):
+            column = self.header[column]
+        if order is None:
+            if self.columnSort[column] is None or self.columnSort[column]==Qt.DescendingOrder:
+                order = Qt.AscendingOrder
+            else:
+                order = Qt.DescendingOrder
+        idx = self.header.index(column)
+        self.sortItems(idx, order)
+        self.columnSort[column] = order
+        
+    def setClickHeaderToSort(self, value):
+        # don't want multiple connections, so always disconnect and only 
+        # reconnect if required
+        try:
+            self.horizontalHeader().sectionClicked.disconnect(self.sort)
+        except TypeError:
+            pass
+        if value:
+            self.horizontalHeader().setSectionsClickable(True)
+            self.horizontalHeader().setSortIndicatorShown(True)
+            self.horizontalHeader().sectionClicked.connect(self.sort)
