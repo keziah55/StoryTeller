@@ -40,7 +40,7 @@ class OpenStoryDialog(QDialog):
         self.layout.addWidget(self.storyTable)
         self.layout.addWidget(self.buttons)
         
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
         
         self.setLayout(self.layout)
         
