@@ -10,7 +10,7 @@ import os
 import re
 from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout,
                              QAbstractItemView)
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from .tablewidget import TableWidget
 from .editor import StoryEditor
 from .searchbar import SearchBar
@@ -95,6 +95,7 @@ class OpenStoryDialog(QDialog):
                 text = fileobj.read()
             wordcount = StoryEditor.countWordsInText(text)
             self.storyTable.addRow(title, date, wordcount)
+        self.storyTable.sort('Date', Qt.DescendingOrder)
     
     @pyqtSlot(str, bool)
     def search(self, text, caseSensitive):
