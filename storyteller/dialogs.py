@@ -9,7 +9,7 @@ Created on Wed Dec 23 16:32:35 2020
 import os
 import re
 from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout,
-                             QAbstractItemView, QSizePolicy)
+                             QAbstractItemView)
 from PyQt5.QtCore import pyqtSlot
 from .tablewidget import TableWidget
 from .editor import StoryEditor
@@ -54,10 +54,6 @@ class OpenStoryDialog(QDialog):
         
         self.setLayout(self.layout)
         
-        # self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
-        # height = self.storyTable.size().height()
-        # width = sum([self.storyTable.columnWidth(i) for i in range(self.storyTable.columnCount)])
         self.resize(self.storyTable.size())
         
         
