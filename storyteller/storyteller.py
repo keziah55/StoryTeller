@@ -127,6 +127,10 @@ class StoryTeller(QMainWindow):
             text = fileobj.read()
         self.textEdit.setHtml(text)
         
+    @pyqtSlot()
+    def newStory(self):
+        # TODO prompt to save changes, then clear and set temp title (for savename)
+        pass
             
     def createActions(self):
         
@@ -137,6 +141,10 @@ class StoryTeller(QMainWindow):
         self.openAct = QAction(QIcon.fromTheme('document-open'), "&Open", self,
                                shortcut=QKeySequence.Open,
                                statusTip="Open a story", triggered=self.openStory)
+        
+        self.newAct = QAction(QIcon.fromTheme('document-new'), "&New", self,
+                               shortcut=QKeySequence.New,
+                               statusTip="New story", triggered=self.newStory)
         
         self.exportAct = QAction(QIcon.fromTheme('text-x-generic'), "&Export", 
                                  self, statusTip="Export plain text")
@@ -182,15 +190,16 @@ class StoryTeller(QMainWindow):
         
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
+        self.fileMenu.addAction(self.newAct)
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.openAct)
         self.fileMenu.addAction(self.exportAct)
         self.fileMenu.addSeparator();
         self.fileMenu.addAction(self.exitAct)
         
-
     def createToolBars(self):
         self.fileToolBar = self.addToolBar("File")
+        self.fileToolBar.addAction(self.newAct)
         self.fileToolBar.addAction(self.saveAct)
         self.fileToolBar.addAction(self.openAct)
         self.fileToolBar.addAction(self.setGoalAct)
