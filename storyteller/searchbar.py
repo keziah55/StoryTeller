@@ -6,6 +6,7 @@ Created on Thu Dec 24 13:35:37 2020
 @author: keziah
 """
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton, 
                              QWidget, QCheckBox)
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer
@@ -31,7 +32,7 @@ class SearchBar(QWidget):
         
         self.label = QLabel("Search")
         self.edit = QLineEdit()
-        self.clear = QPushButton("Clear")
+        self.clear = QPushButton(QIcon.fromTheme('edit-clear'), "")
         self.caseLabel = QLabel("Case sensitive")
         self.case = QCheckBox()
         
@@ -46,9 +47,9 @@ class SearchBar(QWidget):
         self.layout = QHBoxLayout()
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.edit)
+        self.layout.addWidget(self.clear)
         self.layout.addWidget(self.caseLabel)
         self.layout.addWidget(self.case)
-        self.layout.addWidget(self.clear)
         
         self.setLayout(self.layout)
         
