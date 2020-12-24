@@ -110,10 +110,16 @@ class TableWidget(QTableWidget):
             
     def currentValue(self, column):
         """ Return the value of the given column in the currently selected row. """
-        row = self.currentRow()
+        row = super().currentRow()
         col = self.headerLabels.index(column)
         item = self.item(row, col)
         return item.text()
+    
+    @property 
+    def currentRow(self):
+        """ Return dict of column name:value pairs for the currently selected row. """
+        row = {name:self.currentValue(name) for name in self.headerLabels}
+        return row
         
     def sort(self, column, order=None):
         if isinstance(column, int):

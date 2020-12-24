@@ -22,6 +22,8 @@ from .countlabel import WordCountLabel
 # TODO list
 # list of titles
 # new story
+# autosave to temp file
+# dictionary/spellchecker
 # make database of stories 
 ## title, date created, date(s) modified, word count, goal
 # text formatting (bold, italic, font, size)
@@ -110,7 +112,7 @@ class StoryTeller(QMainWindow):
         diag = OpenStoryDialog(self.savePath)
         result = diag.execDialog()
         if result:
-            self._openFile(diag.story)
+            self._openFile(diag.file)
         
     @pyqtSlot(str)
     def _openFile(self, filename):

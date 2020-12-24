@@ -58,17 +58,18 @@ class OpenStoryDialog(QDialog):
         
         
     @property
-    def story(self):
-        return self._story
+    def file(self):
+        return self._file
     
-    @story.setter
-    def story(self, name):
-        self._story = name
+    @file.setter
+    def file(self, name):
+        self._file = name
         
     @pyqtSlot()
     def accept(self):
         """ Set `story` proprety from currently selected list item. """
-        self.story = self.storyTable.currentValue('title')
+        row = self.storyTable.currentRow
+        self.file = f"{row['Date']} {row['Title']}.html"
         super().accept()
         
     def execDialog(self):
