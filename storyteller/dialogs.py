@@ -54,8 +54,6 @@ class OpenStoryDialog(QDialog):
         
         self.setLayout(self.layout)
         
-        self.resize(self.storyTable.size())
-        
         
     @property
     def file(self):
@@ -95,7 +93,9 @@ class OpenStoryDialog(QDialog):
                 text = fileobj.read()
             wordcount = StoryEditor.countWordsInText(text)
             self.storyTable.addRow(title, date, wordcount)
+        # most recent first
         self.storyTable.sort('Date', Qt.DescendingOrder)
+    
     
     @pyqtSlot(str, bool)
     def search(self, text, caseSensitive):
