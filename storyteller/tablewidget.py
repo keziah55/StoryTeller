@@ -19,14 +19,16 @@ class TableWidget(QTableWidget):
             Number of columns. (Only required if `headerLabels` is not provided.)
         showRowNumbers : bool
             If True (default behaviour), row numbers will be shown.
-        clickHeaderLabelsToSort : True
+        clickHeaderLabelsToSort : bool
             Sort table when headerLabels clicked.
+        readOnly : bool
+            If True, the whole table will be read-only. Default is False.
         parent : QObject, optional
             Parent object
     """
     
     def __init__(self, headerLabels=None, columns=None, showRowNumbers=True, 
-                 clickHeaderLabelsToSort=True, parent=None):
+                 clickHeaderLabelsToSort=True, readOnly=False, parent=None):
         if headerLabels is None and columns is None:
             msg = "TableWidget needs either `headerLabels` or `columns` arg."
             raise ValueError(msg)
@@ -51,6 +53,8 @@ class TableWidget(QTableWidget):
         
         self.columnSort = dict(zip(self.headerLabels, [None]*len(self.headerLabels)))
         self.setClickHeaderLabelsToSort(clickHeaderLabelsToSort)
+        
+        self.flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable if readOnly else Qt.ItemIsEnabled|Qt.ItemIsEditable
 
         
     @property
@@ -101,6 +105,7 @@ class TableWidget(QTableWidget):
         
         for n, key in enumerate(self.headerLabels):
             item = QTableWidgetItem(str(args[key]))
+            item.setFlags(self.flags)
             self.setItem(row, n, item)
             
     def currentValue(self, column):

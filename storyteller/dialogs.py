@@ -8,15 +8,22 @@ Created on Wed Dec 23 16:32:35 2020
 
 import os
 import re
-from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout, QHBoxLayout,
-                             QAbstractItemView, QSizePolicy, QLabel, QLineEdit,
-                             QPushButton, QWidget, QCheckBox)
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer
+from PyQt5.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout,
+                             QAbstractItemView, QSizePolicy)
+from PyQt5.QtCore import pyqtSlot
 from .tablewidget import TableWidget
 from .editor import StoryEditor
+from .searchbar import SearchBar
 
 
 class OpenStoryDialog(QDialog):
+    """ Dialog showing a searchable table of story titles, dates and wordcounts.
+    
+        Parameters
+        ----------
+        path : str
+            Path to directory where stories are stored.
+    """
     
     def __init__(self, path):
         super().__init__()
@@ -28,7 +35,7 @@ class OpenStoryDialog(QDialog):
         stories = [story for story in stories if os.path.splitext(story)[1]=='.html']
         
         header = ['Title', 'Date', 'Wordcount']
-        self.storyTable = TableWidget(header, showRowNumbers=False)
+        self.storyTable = TableWidget(header, showRowNumbers=False, readOnly=True)
         self.storyTable.setSelectionMode(QAbstractItemView.SingleSelection)
         self.populateTable(stories)
         self.storyTable.resizeColumnsToContents()
@@ -39,10 +46,6 @@ class OpenStoryDialog(QDialog):
         
         self.searchBar = SearchBar()
         self.searchBar.search.connect(self.search)
-        # self.searchBar.next.clicked.connect(self.highlightNextSearch)
-        # self.searchBar.prev.clicked.connect(self.highlightPrevSearch)
-        # self.searchResults = []
-        # self.searchIdx = 0
         
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.searchBar)
@@ -83,12 +86,14 @@ class OpenStoryDialog(QDialog):
             return False
         
     def populateTable(self, titles):
+        """ Add data from list of `titles` to the table. """
         for t in titles:
             title, _ = os.path.splitext(t)
             srch = re.search(r"(\d{4}-\d{2}-\d{2} )(.+)", title)
             date = srch.group(1).strip()
             title = srch.group(2).strip()
             # TODO store this info in database
+            # Also the wordcount returned here is wrong
             with open(os.path.join(self.path, t)) as fileobj:
                 text = fileobj.read()
             wordcount = StoryEditor.countWordsInText(text)
@@ -119,53 +124,5 @@ class OpenStoryDialog(QDialog):
                 self.storyTable.hideRow(idx)
             elif self.storyTable.isRowHidden(idx):
                 self.storyTable.showRow(idx)
-                        
-        
-class SearchBar(QWidget):
-    """ QWidget providing a serach bar, with case sensitive check box.
     
-        Parameters
-        ----------
-        timeout : int
-            Signal with search parameters will be emitted `timeout` ms after
-            text is typed in the search bar. Default is 100ms.
-    """
-    
-    search = pyqtSignal(str, bool)
-    """ **signal** search(str `text`, bool `caseSensitive`)
-    
-        Request search for given string.
-    """
-    
-    def __init__(self, timeout=100):
-        super().__init__()
-        
-        self.label = QLabel("Search")
-        self.edit = QLineEdit()
-        self.clear = QPushButton("Clear")
-        self.caseLabel = QLabel("Case sensitive")
-        self.case = QCheckBox()
-        
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(timeout)
-        self.timer.timeout.connect(self.requestSearch)
-        self.edit.textChanged.connect(self.timer.start)
-        
-        self.clear.clicked.connect(lambda: self.edit.setText(""))
-        
-        self.layout = QHBoxLayout()
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.edit)
-        self.layout.addWidget(self.caseLabel)
-        self.layout.addWidget(self.case)
-        self.layout.addWidget(self.clear)
-        
-        self.setLayout(self.layout)
-        
-    @pyqtSlot()
-    def requestSearch(self):
-        text = self.edit.text()
-        caseSensitive = self.case.isChecked()
-        self.search.emit(text, caseSensitive)
         

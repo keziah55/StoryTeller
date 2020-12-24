@@ -22,12 +22,10 @@ from .countlabel import WordCountLabel
 # TODO list
 # list of titles
 # new story
-# search in open dialog
 # make database of stories 
 ## title, date created, date(s) modified, word count, goal
 # text formatting (bold, italic, font, size)
 ## write to plain text; generally use the database to access
-
 
 
 class StoryTeller(QMainWindow):
@@ -181,7 +179,6 @@ class StoryTeller(QMainWindow):
         self.sizeMenu.currentIndexChanged.connect(self.setFontSize)
         
     def createMenus(self):
-        
         self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.openAct)
@@ -189,19 +186,8 @@ class StoryTeller(QMainWindow):
         self.fileMenu.addSeparator();
         self.fileMenu.addAction(self.exitAct)
         
-        # self.editMenu = self.menuBar().addMenu("&Edit")
-        # self.editMenu.addAction(self.addAct)
-        # self.editMenu.addAction(self.rmvAct)
-        # self.editMenu.addAction(self.editAct)
-
-        # self.menuBar().addSeparator()
-
-        # self.helpMenu = self.menuBar().addMenu("&Help")
-        # self.helpMenu.addAction(self.abtAct)
-
 
     def createToolBars(self):
-        
         self.fileToolBar = self.addToolBar("File")
         self.fileToolBar.addAction(self.saveAct)
         self.fileToolBar.addAction(self.openAct)
