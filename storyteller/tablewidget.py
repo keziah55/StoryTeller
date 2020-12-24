@@ -65,6 +65,23 @@ class TableWidget(QTableWidget):
     def header(self):
         return super().horizontalHeader()
     
+    def getRow(self, idx):
+        """ Return list of values in row `idx`. """
+        row = []
+        for col in range(self.columnCount):
+            item = self.item(idx, col)
+            row.append(item.text())
+        return row
+    
+    def getColumn(self, name):
+        """ Return list of values in column `name`. """
+        column = []
+        idx = self.headerLabels.index(name)
+        for row in range(self.rowCount):
+            item = self.item(row, idx)
+            column.append(item.text())
+        return column
+        
     def addRow(self, *args):
         """ Add row to the table.
         

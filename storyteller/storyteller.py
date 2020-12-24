@@ -22,6 +22,7 @@ from .countlabel import WordCountLabel
 # TODO list
 # list of titles
 # new story
+# search in open dialog
 # make database of stories 
 ## title, date created, date(s) modified, word count, goal
 # text formatting (bold, italic, font, size)
