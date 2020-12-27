@@ -7,8 +7,8 @@ Created on Tue Dec 22 16:45:48 2020
 """
 
 import os
-import re
 from datetime import date
+from bs4 import BeautifulSoup
 
 from PyQt5.QtGui import QFontDatabase, QIcon, QKeySequence
 from PyQt5.QtWidgets import (QAction, QComboBox, QDesktopWidget, 
@@ -116,16 +116,14 @@ class StoryTeller(QMainWindow):
         
     @pyqtSlot(str)
     def _openFile(self, filename):
-        # strip extension and date from title
-        title, _ = os.path.splitext(filename)
-        title = re.sub(r"\d{4}-\d{2}-\d{2} ", "", title)
-        self.title.setText(title)
-        
         # set text
         path = os.path.join(self.savePath, filename)
         with open(path) as fileobj:
             text = fileobj.read()
-        self.textEdit.setHtml(text)
+            
+        soup = BeautifulSoup(text, 'html.parser')
+        self.title.setText(soup.h1.text)
+        self.textEdit.setHtml(str(soup.html)) # TODO read paras properly here
         
     @pyqtSlot()
     def showTitleList(self):
