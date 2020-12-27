@@ -112,7 +112,7 @@ class StoryTeller(QMainWindow):
         diag = OpenStoryDialog(self.savePath)
         result = diag.execDialog()
         if result:
-            self._openFile(diag.file)
+            self._openFile(diag.value)
         
     @pyqtSlot(str)
     def _openFile(self, filename):
@@ -131,6 +131,10 @@ class StoryTeller(QMainWindow):
     def newStory(self):
         # TODO prompt to save changes, then clear and set temp title (for savename)
         pass
+    
+    def _clear(self):
+        self.title.setText("")
+        self.edit.setText("")
             
     def createActions(self):
         
