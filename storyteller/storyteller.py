@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (QAction, QComboBox, QDesktopWidget,
                              QLineEdit, QMainWindow, QWidget, QVBoxLayout) 
 from PyQt5.QtCore import pyqtSlot, Qt
 
-from .dialogs import OpenStoryDialog
+from .dialogs import OpenStoryDialog, TitleListDialog
 from .editor import StoryEditor
 from .countlabel import WordCountLabel
 
@@ -128,6 +128,13 @@ class StoryTeller(QMainWindow):
         self.textEdit.setHtml(text)
         
     @pyqtSlot()
+    def showTitleList(self):
+        diag = TitleListDialog(self.savePath)
+        result = diag.execDialog()
+        if result:
+            pass
+        
+    @pyqtSlot()
     def newStory(self):
         # TODO prompt to save changes, then clear and set temp title (for savename)
         pass
@@ -149,6 +156,10 @@ class StoryTeller(QMainWindow):
         self.newAct = QAction(QIcon.fromTheme('document-new'), "&New", self,
                                shortcut=QKeySequence.New,
                                statusTip="New story", triggered=self.newStory)
+        
+        self.titleListAct = QAction(QIcon.fromTheme('folder-new'), "&Title list", self,
+                               # shortcut=QKeySequence.Open,
+                               statusTip="View list of titles", triggered=self.showTitleList)
         
         self.exportAct = QAction(QIcon.fromTheme('text-x-generic'), "&Export", 
                                  self, statusTip="Export plain text")
@@ -197,6 +208,7 @@ class StoryTeller(QMainWindow):
         self.fileMenu.addAction(self.newAct)
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addAction(self.openAct)
+        self.fileMenu.addAction(self.titleListAct)
         self.fileMenu.addAction(self.exportAct)
         self.fileMenu.addSeparator();
         self.fileMenu.addAction(self.exitAct)
@@ -206,6 +218,7 @@ class StoryTeller(QMainWindow):
         self.fileToolBar.addAction(self.newAct)
         self.fileToolBar.addAction(self.saveAct)
         self.fileToolBar.addAction(self.openAct)
+        self.fileToolBar.addAction(self.titleListAct)
         self.fileToolBar.addAction(self.setGoalAct)
         
         self.editToolBar = self.addToolBar("Edit")

@@ -62,7 +62,7 @@ class AbstractDialog(QDialog, metaclass=PyQtMetaclass):
             return False
         
     @abstractmethod
-    def populateWidget(self):
+    def populateWidget(self, lst):
         pass
     
     @abstractmethod
@@ -147,16 +147,59 @@ class OpenStoryDialog(AbstractDialog):
                 self.widget.showRow(idx)
     
     
-class TitleListDialog(QDialog):
+class TitleListDialog(AbstractDialog):
     
     def __init__(self, path):
-        super().__init__(path, "View or edit list of title")
+        super().__init__(path, "View or edit list of titles")
         
         self.path = path
         
+        file = os.path.join(self.path, 'title_list')
+        
+        # make file if it doesn't exist
+        if not os.path.exists(file):
+            with open(file, 'w') as fileobj:
+                fileobj.write("")
+
+        with open(file) as fileobj:
+            text = fileobj.read()
+        titles = [title for title in text.split('\n') if title]
+        
         self.widget = QListWidget()
-        self.populateWidget()
+        self.populateWidget(titles)
         
         self._makeLayout()
         
+        
+    def populateWidget(self, titles):
+        self.widget.addItems(sorted(titles))
+        
+        
+    @pyqtSlot(str, bool)
+    def search(self, text, caseSensitive):
+        """ Search for `text` in the table. """
+        if not text:
+            # if empty search string, make sure all rows are visible and 
+            # return from this method
+            for idx in range(self.widget.count):
+                item = self.widget.item(idx)
+                item.setHidden(False)
+            return None
+        
+        if not caseSensitive:
+            text = text.lower()
+
+        for idx in range(self.widget.count):
+            item = self.widget.item(idx)
+            itemText = item.text()
+            hideRow = True
+            if not caseSensitive:
+                itemText = itemText.lower()
+            if text in itemText:
+                hideRow = False
+            if hideRow:
+                item.setHidden(True)
+            elif item.isHidden():
+                item.setHidden(False)
+    
         
